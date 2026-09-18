@@ -18,6 +18,7 @@ def validate_logbook_entries(
     entries: List[DailyActivityEntry],
     timeline: MonthTimeline,
     max_words: int = 35,
+    allow_inferred: bool = True,
 ) -> ValidationResult:
     """Validates generated daily activities against the source timeline."""
     errors: List[str] = []
@@ -52,9 +53,18 @@ def validate_logbook_entries(
 
         # Check status and evidence level
         if day_tl.evidence_level == EvidenceLevel.NONE:
-            if entry.status == ActivityStatus.OK and entry.activity:
+            if entry.evidence_level == EvidenceLevel.DIRECT:
                 errors.append(
-                    f"Date {date} has NO evidence but status is marked OK with activity: '{entry.activity}'. Should be NEEDS_REVIEW."
+                    f"Date {date} has NO evidence but claims direct evidence."
+                )
+            elif entry.evidence_level == EvidenceLevel.INFERRED:
+                if not allow_inferred:
+                    errors.append(
+                        f"Date {date} has inferred activity, but allow_inferred is disabled."
+                    )
+            elif entry.status == ActivityStatus.OK and entry.activity:
+                errors.append(
+                    f"Date {date} has NO evidence but status is marked OK with activity: '{entry.activity}'. Should be NEEDS_REVIEW or INFERRED."
                 )
         elif day_tl.evidence_level == EvidenceLevel.DIRECT:
             if not day_tl.commits and entry.evidence_level == EvidenceLevel.DIRECT:

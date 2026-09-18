@@ -5,27 +5,31 @@ Workflow untuk menghasilkan dokumen logbook bulanan magang Polinema secara otoma
 ---
 
 ## Prasyarat
-- Konfigurasi mahasiswa dan magang sudah terisi di folder `config/`.
-- Perangkat lokal memiliki `git`, `python3`, dan `latexmk` (dengan `xelatex`).
+- Konfigurasi profil magang sudah tersedia di `config.json` (atau otomatis dipandu kuesioner AI saat pertama kali dijalankan).
+- Perangkat lokal memiliki `git`, `python3`, dan `latexmk` (dengan engine `xelatex`).
 
 ---
 
 ## Langkah-langkah
 
-### 1. Tentukan Bulan Target
-Tanyakan kepada user bulan yang ingin dibuat jika belum ditentukan. Format: `YYYY-MM` (contoh: `2026-09`).
+### 1. Deteksi Profil & Bulan Target
+- Periksa kelengkapan konfigurasi `config.json`. Jika belum ada, pandu pengisian data secara interaktif.
+- Tentukan bulan target: otomatis gunakan bulan berjalan (misal: `2026-09`) jika user meminta *"bulan ini"*, atau parse bulan yang disebutkan.
 
-### 2. Jalankan Prepare
+### 2. Jalankan Prepare (Crawling Git)
 ```bash
 python3 -m scripts.logbook.cli prepare --month <YYYY-MM>
 ```
 Perintah ini akan:
-1. Menemukan semua repositori Git di bawah `project_root`.
+1. Menemukan semua repositori Git di bawah `project_root` secara rekursif.
 2. Mengumpulkan commit sesuai identitas mahasiswa untuk bulan tersebut (`evidence.json`).
-3. Membangun kalender jadwal kerja dan mengikat bukti kerja ke tanggal yang sesuai (`timeline.json`).
+3. Membangun kalender jadwal kerja dan mengikat bukti kerja serta konteks commit hari berikutnya (`timeline.json`).
 
-### 3. Buat Draft Logbook Harian
-Baca berkas `generated/<YYYY-MM>/timeline.json` dan hasilkan `generated/<YYYY-MM>/logbook.draft.json`.
+### 3. Sintesis Kegiatan Harian (AI Infilling ala git_trace)
+Baca berkas `generated/<YYYY-MM>/timeline.json` dan hasilkan `generated/<YYYY-MM>/logbook.final.json`:
+- **Hari dengan commit (`direct`)**: Buat deskripsi formal berdasarkan commit dan berkas yang disentuh.
+- **Hari dengan catatan manual (`manual`)**: Rangkum catatan manual.
+- **Hari kosong (`inferred`)**: Inferensikan kegiatan persiapan/perancangan/riset menuju commit hari kerja terdekat berikutnya (`subsequent_commits`).
 Setiap tanggal memiliki struktur:
 ```json
 {
@@ -38,31 +42,16 @@ Setiap tanggal memiliki struktur:
   "evidence_refs": ["repo-name:short_sha"]
 }
 ```
-Jika tidak ada bukti:
-```json
-{
-  "date": "YYYY-MM-DD",
-  "status": "NEEDS_REVIEW",
-  "evidence_level": "none",
-  "confidence": 0.0,
-  "activity": null,
-  "repositories": [],
-  "evidence_refs": []
-}
-```
 
-### 4. Lakukan Monthly Editing
-Poles narasi kalimat pada `generated/<YYYY-MM>/logbook.final.json` agar bervariasi dan mengalir tanpa mengubah substansi fakta dan referensi commit.
-
-### 5. Finalisasi, Render, dan Compile PDF
+### 4. Finalisasi, Render, dan Compile PDF
 ```bash
 python3 -m scripts.logbook.cli finalize --month <YYYY-MM>
 ```
 Perintah ini akan:
-1. Memvalidasi skema dan relasi bukti terhadap timeline.
+1. Memvalidasi skema dan kepatuhan aturan bukti kerja.
 2. Merender `metadata.tex` dan `activities.tex` dengan karakter LaTeX yang telah di-*escape*.
-3. Mengompilasi PDF menggunakan `latexmk -xelatex`.
+3. Mengompilasi PDF resmi berstandar Polinema menggunakan `latexmk -xelatex`.
 4. Menghasilkan ringkasan di `generated/<YYYY-MM>/generation-report.md`.
 
-### 6. Berikan Hasil ke Pengguna
-Tampilkan ringkasan metrik (total commit, hari langsung, hari manual, hari review) dan tautan berkas PDF di `dist/logbook-<YYYY-MM>.pdf`.
+### 5. Berikan Hasil ke Pengguna
+Tampilkan ringkasan metrik (total commit, hari direct, hari inferensi) dan tautan berkas PDF di `dist/logbook-<YYYY-MM>.pdf`.

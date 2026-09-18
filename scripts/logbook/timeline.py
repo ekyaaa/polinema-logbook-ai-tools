@@ -132,6 +132,22 @@ def build_month_timeline(
             )
         )
 
+    # Post-process: attach subsequent and prior commit context for empty days
+    for i, d in enumerate(all_days):
+        if d.evidence_level == EvidenceLevel.NONE:
+            # Look forward for the nearest upcoming day with commits
+            for fwd in all_days[i + 1:]:
+                if fwd.commits:
+                    d.subsequent_commits = fwd.commits
+                    d.subsequent_date = fwd.date
+                    break
+            # Look backward for the nearest past day with commits
+            for bwd in reversed(all_days[:i]):
+                if bwd.commits:
+                    d.prior_commits = bwd.commits
+                    d.prior_date = bwd.date
+                    break
+
     return MonthTimeline(
         month=month_key,
         repositories=sorted(all_repos),

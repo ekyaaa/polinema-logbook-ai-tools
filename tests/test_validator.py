@@ -90,7 +90,50 @@ class TestValidator(unittest.TestCase):
         ]
         res = validate_logbook_entries(entries, self.timeline)
         self.assertFalse(res.is_valid)
-        self.assertTrue(any("NO evidence" in e for e in res.errors))
+    def test_inferred_activity_allowed(self):
+        entries = [
+            DailyActivityEntry(
+                date="2026-09-01",
+                status=ActivityStatus.OK,
+                evidence_level=EvidenceLevel.DIRECT,
+                activity="Mengimplementasikan fitur login.",
+                repositories=["shin-ac"],
+                evidence_refs=["shin-ac:abc1234"],
+            ),
+            DailyActivityEntry(
+                date="2026-09-02",
+                status=ActivityStatus.OK,
+                evidence_level=EvidenceLevel.INFERRED,
+                activity="Mempersiapkan perancangan antarmuka pengguna pada proyek shin-ac.",
+                repositories=["shin-ac"],
+                evidence_refs=[],
+            ),
+        ]
+        res = validate_logbook_entries(entries, self.timeline, allow_inferred=True)
+        self.assertTrue(res.is_valid)
+
+    def test_inferred_activity_rejected_when_disabled(self):
+        entries = [
+            DailyActivityEntry(
+                date="2026-09-01",
+                status=ActivityStatus.OK,
+                evidence_level=EvidenceLevel.DIRECT,
+                activity="Mengimplementasikan fitur login.",
+                repositories=["shin-ac"],
+                evidence_refs=["shin-ac:abc1234"],
+            ),
+            DailyActivityEntry(
+                date="2026-09-02",
+                status=ActivityStatus.OK,
+                evidence_level=EvidenceLevel.INFERRED,
+                activity="Mempersiapkan perancangan antarmuka pengguna pada proyek shin-ac.",
+                repositories=["shin-ac"],
+                evidence_refs=[],
+            ),
+        ]
+        res = validate_logbook_entries(entries, self.timeline, allow_inferred=False)
+        self.assertFalse(res.is_valid)
+        self.assertTrue(any("allow_inferred is disabled" in e for e in res.errors))
 
 
 if __name__ == "__main__":

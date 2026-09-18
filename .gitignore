@@ -16,6 +16,12 @@ dist/
 *.synctex.gz
 *.pdf
 
+# Generated logbooks and monthly artifacts
+generated/
+
+# Personal user config (use config.example.json as template)
+config.json
+
 # System & IDE
 .DS_Store
 .idea/

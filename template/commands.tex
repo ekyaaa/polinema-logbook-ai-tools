@@ -1,7 +1,9 @@
 \newcommand{\LogbookTableStart}{%
-  \begin{longtable}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\centering\arraybackslash}p{1.6cm}|>{\centering\arraybackslash}p{1.6cm}|>{\raggedright\arraybackslash}p{8.3cm}|}
+  \noindent
+  \begin{longtable}{|>{\centering\arraybackslash}p{2.8cm}|>{\centering\arraybackslash}p{2.3cm}|>{\centering\arraybackslash}p{2.3cm}|>{\raggedright\arraybackslash}p{\dimexpr\textwidth-7.4cm-8\tabcolsep-5\arrayrulewidth\relax}|}
   \hline
-  \textbf{Hari, Tanggal} & \textbf{Jam Masuk} & \textbf{Jam Pulang} & \textbf{Kegiatan} \\ \hline
+  \rowcolor[HTML]{D9D9D9}
+  \textbf{Hari, Tanggal} & \textbf{Jam Masuk} & \textbf{Jam Pulang} & \multicolumn{1}{c|}{\textbf{Kegiatan}} \\ \hline
   \endhead
 }
 

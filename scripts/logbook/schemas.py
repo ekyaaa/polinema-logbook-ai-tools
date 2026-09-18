@@ -40,6 +40,10 @@ class DayTimeline(BaseModel):
     repositories: List[str] = Field(default_factory=list)
     commits: List[CommitEvidence] = Field(default_factory=list)
     manual_notes: List[str] = Field(default_factory=list)
+    subsequent_commits: List[CommitEvidence] = Field(default_factory=list)
+    subsequent_date: Optional[str] = None
+    prior_commits: List[CommitEvidence] = Field(default_factory=list)
+    prior_date: Optional[str] = None
 
 
 class MonthTimeline(BaseModel):

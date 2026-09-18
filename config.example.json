@@ -1,0 +1,38 @@
+{
+  "student": {
+    "name": "Nama Lengkap Mahasiswa",
+    "nim": "2341720000",
+    "program": "D-IV Teknik Informatika",
+    "institution": "Politeknik Negeri Malang",
+    "academic_advisor": "Nama Dosen Pembimbing, S.Kom., M.T.",
+    "field_supervisor": "Nama Pembimbing Lapangan / Mentor"
+  },
+  "internship": {
+    "company": "Nama Perusahaan Mitra",
+    "division": "Software Engineering",
+    "project_root": "/home/user/Project/Magang",
+    "git_authors": {
+      "names": [
+        "username_git",
+        "Nama Lengkap Mahasiswa"
+      ],
+      "emails": [
+        "email_mahasiswa@example.com"
+      ]
+    }
+  },
+  "logbook": {
+    "timezone": "Asia/Jakarta",
+    "working_days": [
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday"
+    ],
+    "check_in": "07:00",
+    "check_out": "16:20",
+    "allow_inferred_activity": true,
+    "latex_engine": "xelatex"
+  }
+}

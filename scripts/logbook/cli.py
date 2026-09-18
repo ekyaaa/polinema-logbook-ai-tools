@@ -275,6 +275,7 @@ def cmd_finalize(args: argparse.Namespace, config: AppConfig) -> int:
         entries=logbook.entries,
         timeline=timeline,
         max_words=config.logbook.max_activity_words,
+        allow_inferred=config.logbook.allow_inferred_activity,
     )
 
     if validation.warnings:

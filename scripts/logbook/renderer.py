@@ -29,13 +29,37 @@ MONTH_NAMES_ID = {
     12: "Desember",
 }
 
+MONTH_NAMES_SHORT_ID = {
+    1: "Jan",
+    2: "Feb",
+    3: "Mar",
+    4: "Apr",
+    5: "Mei",
+    6: "Jun",
+    7: "Jul",
+    8: "Agu",
+    9: "Sep",
+    10: "Okt",
+    11: "Nov",
+    12: "Des",
+}
 
-def format_indonesian_date(date_str: str, include_day_name: bool = True) -> str:
-    """Formats 'YYYY-MM-DD' into 'Hari, DD Bulan YYYY' or 'DD Bulan YYYY'."""
+
+def format_indonesian_date(
+    date_str: str,
+    include_day_name: bool = True,
+    abbreviate_month: bool = False,
+) -> str:
+    """Formats 'YYYY-MM-DD' into 'Hari, D Bulan YYYY' or 'Hari, D Mmm YYYY'."""
     dt = datetime.date.fromisoformat(date_str)
     day_name = DAY_NAMES_ID[dt.weekday()]
-    month_name = MONTH_NAMES_ID[dt.month]
-    formatted = f"{dt.day:02d} {month_name} {dt.year}"
+    if abbreviate_month:
+        month_name = MONTH_NAMES_SHORT_ID[dt.month]
+        formatted = f"{dt.day} {month_name} {dt.year}"
+    else:
+        month_name = MONTH_NAMES_ID[dt.month]
+        formatted = f"{dt.day:02d} {month_name} {dt.year}"
+
     if include_day_name:
         return f"{day_name}, {formatted}"
     return formatted
@@ -73,15 +97,19 @@ def render_activities_tex(
     """Generates LaTeX table entries."""
     formatted_entries = []
     for entry in entries:
-        date_formatted = escape_latex(format_indonesian_date(entry.date, include_day_name=True))
+        date_formatted = escape_latex(
+            format_indonesian_date(entry.date, include_day_name=True, abbreviate_month=True)
+        )
 
         if entry.status == ActivityStatus.NEEDS_REVIEW or not entry.activity:
             check_in = "-"
             check_out = "-"
             activity_text = r"\textit{[Perlu Review Kegiatan / Tidak Ada Catatan]}"
         else:
-            check_in = escape_latex(entry.check_in or default_check_in)
-            check_out = escape_latex(entry.check_out or default_check_out)
+            raw_check_in = entry.check_in or default_check_in
+            raw_check_out = entry.check_out or default_check_out
+            check_in = escape_latex(raw_check_in.replace(":", "."))
+            check_out = escape_latex(raw_check_out.replace(":", "."))
             activity_text = escape_latex(entry.activity)
 
         formatted_entries.append(
