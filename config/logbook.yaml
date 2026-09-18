@@ -1,0 +1,24 @@
+timezone: "Asia/Jakarta"
+
+working_days:
+  - monday
+  - tuesday
+  - wednesday
+  - thursday
+  - friday
+
+default_hours:
+  check_in: "07:00"
+  check_out: "16:20"
+
+git:
+  include_merges: false
+  include_file_names: true
+  include_diff_stat: false
+
+ai:
+  allow_inferred_activity: false
+  max_activity_words: 35
+
+latex:
+  engine: "xelatex"

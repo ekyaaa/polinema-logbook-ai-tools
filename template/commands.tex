@@ -1,0 +1,17 @@
+\newcommand{\LogbookTableStart}{%
+  \begin{longtable}{|>{\raggedright\arraybackslash}p{3.5cm}|>{\centering\arraybackslash}p{1.6cm}|>{\centering\arraybackslash}p{1.6cm}|>{\raggedright\arraybackslash}p{8.3cm}|}
+  \hline
+  \textbf{Hari, Tanggal} & \textbf{Jam Masuk} & \textbf{Jam Pulang} & \textbf{Kegiatan} \\ \hline
+  \endhead
+}
+
+\newcommand{\LogbookTableEnd}{%
+  \\ \hline
+  \end{longtable}
+}
+
+% Logbook Entry macro
+% Arguments: #1: Date, #2: Check-in, #3: Check-out, #4: Activity
+\newcommand{\LogbookEntry}[4]{%
+  #1 & #2 & #3 & #4%
+}

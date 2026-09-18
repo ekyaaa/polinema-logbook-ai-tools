@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+*.egg-info/
+
+# LaTeX build outputs
+dist/
+*.aux
+*.fls
+*.fdb_latexmk
+*.log
+*.out
+*.xdv
+*.synctex.gz
+*.pdf
+
+# System & IDE
+.DS_Store
+.idea/
+.vscode/

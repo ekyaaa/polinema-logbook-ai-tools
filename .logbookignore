@@ -1,0 +1,33 @@
+# Dependency directories
+node_modules
+vendor
+Pods
+.dart_tool
+.gradle
+
+# Build outputs
+dist
+build
+out
+target
+.next
+
+# Caches and temporary directories
+.cache
+__pycache__
+.pytest_cache
+tmp
+temp
+
+# Test coverage & backups
+coverage
+backup
+backup_db
+archive
+
+# Environment and secrets
+.env
+.env.*
+.venv
+env
+venv
