@@ -5,7 +5,7 @@ from __future__ import annotations
 import calendar
 import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 import yaml
 
 from .schemas import CommitEvidence, DayTimeline, EvidenceLevel, MonthTimeline
@@ -67,12 +67,15 @@ def build_month_timeline(
     month: int,
     commits: List[CommitEvidence],
     manual_notes: Optional[Dict[str, List[str]]] = None,
+    absences: Optional[Dict[str, Any]] = None,
     working_days: Optional[List[str]] = None,
     only_working_days: bool = True,
 ) -> MonthTimeline:
-    """Builds a deterministic month timeline, associating commits and manual notes by date."""
+    """Builds a deterministic month timeline, associating commits, manual notes, and absences by date."""
     if manual_notes is None:
         manual_notes = {}
+    if absences is None:
+        absences = {}
 
     if working_days is None:
         working_days = ["monday", "tuesday", "wednesday", "thursday", "friday"]
@@ -104,19 +107,35 @@ def build_month_timeline(
 
         day_commits = commits_by_date.get(date_str, [])
         day_manual = manual_notes.get(date_str, [])
+        absence_item = absences.get(date_str)
 
         day_repos = sorted({c.repository for c in day_commits})
         all_repos.update(day_repos)
 
-        # Determine evidence level
-        if day_commits:
+        # Determine evidence level: absence takes precedence over git commits and manual notes
+        if absence_item:
+            evidence_level = EvidenceLevel.ABSENT
+            is_absent = True
+            absence_category = getattr(absence_item, "category", "Izin")
+            absence_reason = getattr(absence_item, "reason", "")
+        elif day_commits:
             evidence_level = EvidenceLevel.DIRECT
+            is_absent = False
+            absence_category = None
+            absence_reason = None
         elif day_manual:
             evidence_level = EvidenceLevel.MANUAL
+            is_absent = False
+            absence_category = None
+            absence_reason = None
         else:
             evidence_level = EvidenceLevel.NONE
+            is_absent = False
+            absence_category = None
+            absence_reason = None
 
-        # By default, logbooks only record working days unless weekend had explicit work/commits
+        # By default, logbooks only record working days unless weekend had explicit work/commits.
+        # Weekends during absence periods remain excluded from the official table.
         if only_working_days and not is_working_day and not day_commits and not day_manual:
             continue
 
@@ -129,6 +148,9 @@ def build_month_timeline(
                 repositories=day_repos,
                 commits=day_commits,
                 manual_notes=day_manual,
+                is_absent=is_absent,
+                absence_category=absence_category,
+                absence_reason=absence_reason,
             )
         )
 

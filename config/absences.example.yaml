@@ -1,0 +1,42 @@
+# Contoh Konfigurasi Ketidakhadiran Magang (Absences & Leaves Template)
+# Salin file ini menjadi config/absences.yaml dan sesuaikan dengan catatan Anda.
+# Generator logbook akan otomatis menandai hari-hari ini dengan font merah
+# (\textcolor{red}{...}) pada kolom Jam Masuk, Jam Pulang, dan Kegiatan.
+#
+# Format:
+# absences:
+#   - start_date: "YYYY-MM-DD"
+#     end_date: "YYYY-MM-DD"  # opsional, isi jika rentang lebih dari 1 hari
+#     category: "Sakit" | "Izin"
+#     reason: "Keterangan alasan..."
+
+absences:
+  # Contoh Izin Lomba / Kegiatan Khusus
+  - start_date: "2026-07-23"
+    end_date: "2026-07-24"
+    category: "Izin"
+    reason: "Izin: Mengikuti Lomba di Solo"
+
+  # Contoh Sakit 1 Hari
+  - start_date: "2026-08-10"
+    end_date: "2026-08-10"
+    category: "Sakit"
+    reason: "Sakit"
+
+  # Contoh Izin Rentang Panjang
+  - start_date: "2026-09-01"
+    end_date: "2026-09-11"
+    category: "Izin"
+    reason: "Izin: Mengikuti Lomba KMIPN"
+
+  # Contoh Izin Bimbingan / Dispensasi
+  - start_date: "2026-09-12"
+    end_date: "2026-09-12"
+    category: "Izin"
+    reason: "Izin: Bimbingan skripsi offline dengan pihak ketiga"
+
+  # Contoh Sakit Akhir Bulan
+  - start_date: "2026-09-28"
+    end_date: "2026-09-28"
+    category: "Sakit"
+    reason: "Sakit"

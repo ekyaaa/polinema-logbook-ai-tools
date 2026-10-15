@@ -4,8 +4,11 @@ __pycache__/
 *$py.class
 .pytest_cache/
 *.egg-info/
+.venv/
+env/
+venv/
 
-# LaTeX build outputs
+# LaTeX build outputs & intermediate compiler files
 dist/
 *.aux
 *.fls
@@ -16,13 +19,52 @@ dist/
 *.synctex.gz
 *.pdf
 
-# Generated logbooks and monthly artifacts
+# Generated logbooks, raw Git evidence, and monthly/weekly contexts
 generated/
 
-# Personal user config (use config.example.json as template)
+# Personal configuration & absence records (use *.example.* as templates)
 config.json
+config/*.json
+!config.example.json
+!config/*.example.json
+config/*.yaml
+config/*.yml
+!config/*.example.yaml
+!config/*.example.yml
+
+# Manual daily notes (except example templates)
+manual/*.yaml
+!manual/2026-09.yaml
+!manual/*.example.yaml
+
+# Digital signature assets & personal media
+assets/*.png
+assets/*.jpg
+assets/*.jpeg
+assets/*.svg
+!assets/.gitkeep
+
+# Preview images & temporary files
+*.preview.png
+preview_*.png
+.tempmediaStorage/
+scratch/
+
+# Agent execution logs & scratchpads
+.agents/logs/
+.agents/scratch/
+*.log
+
+# Environment & credentials
+.env
+.env.*
+*.pem
+*.key
 
 # System & IDE
 .DS_Store
 .idea/
 .vscode/
+*.swp
+*.swo
+*.tmp

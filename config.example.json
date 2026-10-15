@@ -1,6 +1,7 @@
 {
   "student": {
     "name": "Nama Lengkap Mahasiswa",
+    "signature_name": "Nama Singkat Mahasiswa",
     "nim": "2341720000",
     "program": "D-IV Teknik Informatika",
     "institution": "Politeknik Negeri Malang",

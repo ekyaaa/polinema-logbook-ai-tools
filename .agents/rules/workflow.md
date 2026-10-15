@@ -15,8 +15,9 @@ When the user asks to generate or create a logbook (e.g. *"Tolong buatkan logboo
    - Run: `python3 -m scripts.logbook.cli prepare --month YYYY-MM`
    - This scans repositories under `project_root` and produces `generated/YYYY-MM/timeline.json` with commit and subsequent commit context.
 
-4. **Synthesize Activities (git_trace logic)**:
-   - Read `generated/YYYY-MM/timeline.json`.
+4. **Synthesize Activities (git_trace & Absence Logic)**:
+   - Read `generated/YYYY-MM/timeline.json` and check `config/absences.yaml` (see `.agents/rules/absences.md`).
+   - For absent days (sakit/izin/lomba): set `evidence_level: "absent"`, `status: "OK"`, `check_in`/`check_out` as `"Sakit"` or `"Izin"`, and `activity` as `"Sakit"` or `"Izin: <Alasan>"`. Do NOT infer technical tasks.
    - For days with commits: summarize into 1 formal Indonesian sentence with `evidence_refs` and `evidence_level: "direct"`.
    - For empty days without commits: apply the `git_trace` inference logic using `subsequent_commits` (or `prior_commits`) to deduce realistic preparation, technical research, architecture planning, testing, or coordination activities. Set `evidence_level: "inferred"` and status `"OK"`.
    - Write synthesized activities to `generated/YYYY-MM/logbook.final.json`.

@@ -9,8 +9,15 @@ Tugas Anda adalah menginterpretasikan bukti kerja (*evidence*) teknis dari Git c
 1. **Git = Evidence**: Bukti nyata aktivitas teknis. Komitmen Git memberikan detail pasti modul, fungsi, dan berkas yang disentuh.
 2. **AI = Interpretation**: Menerjemahkan commit teknis mentah menjadi narasi laporan kegiatan yang komunikatif dan profesional bagi pembimbing akademik dan pembimbing lapangan.
 3. **JSON = Contract**: Output WAJIB berformat JSON murni tanpa pembungkus penjelasan ekstra.
-4. **Penanganan Hari Kosong ala `git_trace`**:
-   - Jika hari kerja tidak memiliki commit, sistem mengaitkannya dengan commit terdekat berikutnya (*subsequent commits*) atau commit sebelumnya (*prior commits*).
+4. **Penanganan Hari Tidak Masuk (Sakit / Izin / Dispensasi)**:
+   - Data ketidakhadiran dikelola di `config/absences.yaml`.
+   - Hari tidak masuk WAJIB diprioritaskan di atas bukti Git atau inferensi. Dilarang menginferensikan pekerjaan teknis pada hari tidak masuk.
+   - Tandai dengan `evidence_level: "absent"`, `status: "OK"`.
+   - `check_in` dan `check_out` diisi `"Sakit"` atau `"Izin"`.
+   - `activity` diisi `"Sakit"` atau `"Izin: <Keterangan>"`.
+   - Tiga kolom tersebut akan otomatis dicetak berwarna merah pada LaTeX.
+5. **Penanganan Hari Kosong ala `git_trace`**:
+   - Jika hari kerja tidak memiliki commit dan bukan hari tidak masuk, sistem mengaitkannya dengan commit terdekat berikutnya (*subsequent commits*) atau commit sebelumnya (*prior commits*).
    - Buat kegiatan persiapan teknis, perancangan arsitektur, riset pustaka/API, pengujian, atau koordinasi yang masuk akal dan relevan menuju aktivitas commit tersebut.
    - Tandai dengan `evidence_level: "inferred"` dan status `"OK"`.
    - Variasikan kata kerja dan fokus kegiatan (DILARANG mengulang kalimat yang sama persis antardua hari kosong).

@@ -55,6 +55,11 @@ Sistem akan:
 ### Langkah 4: Sintesis Kegiatan Harian (AI Infilling ala `git_trace`)
 1. Baca berkas `generated/YYYY-MM/timeline.json`.
 2. Untuk setiap hari kerja:
+   - **Hari Tidak Masuk (Sakit / Izin / Lomba) (`absent`)**:
+     - Periksa `config/absences.yaml` (dan `.agents/rules/absences.md`).
+     - Set `evidence_level: "absent"`, `status: "OK"`, `confidence: 1.0`, `repositories: []`, `evidence_refs: []`.
+     - `check_in` dan `check_out`: `"Sakit"` atau `"Izin"`.
+     - `activity`: `"Sakit"` atau `"Izin: <Alasan>"`.
    - **Hari dengan Commit (`direct`)**: Buat ringkasan 1 kalimat formal mengalir yang mencantumkan nama repositori dan fungsi teknis yang dikerjakan. Cantumkan `evidence_refs`.
    - **Hari dengan Catatan Manual (`manual`)**: Gunakan isi `manual_notes` menjadi narasi kegiatan resmi.
    - **Hari Kosong / Tanpa Commit (`inferred`)**:

@@ -50,6 +50,7 @@ class TestRenderer(unittest.TestCase):
         )
         meta = render_metadata_tex(config, 2026, 9)
         self.assertIn(r"\newcommand{\StudentName}{Ekya M. Hasfi}", meta)
+        self.assertIn(r"\newcommand{\StudentSignatureName}{Ekya M. Hasfi}", meta)
         self.assertIn(r"\newcommand{\StudentNIM}{2341720111}", meta)
         self.assertIn(r"\newcommand{\CompanyFullName}{PT SAI}", meta)
         self.assertIn(r"\newcommand{\LogbookPeriod}{01 September 2026 -- 30 September 2026}", meta)

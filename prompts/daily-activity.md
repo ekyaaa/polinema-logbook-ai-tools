@@ -20,7 +20,21 @@ Menganalisis linimasa harian pada satu tanggal tertentu dan menyusun satu objek 
 
 ---
 
-## 2. Aturan untuk Hari dengan Commit Langsung (`evidence_level: "direct"`)
+## 2. Aturan untuk Hari Tidak Masuk (Sakit / Izin / Lomba) (`evidence_level: "absent"`)
+- Jika tanggal terdaftar di `config/absences.yaml`:
+  - `status: "OK"`
+  - `evidence_level: "absent"`
+  - `confidence: 1.0`
+  - `check_in`: `"Sakit"` jika sakit, atau `"Izin"` untuk jenis izin lainnya (lomba, bimbingan, dispensasi).
+  - `check_out`: `"Sakit"` jika sakit, atau `"Izin"` untuk jenis izin lainnya.
+  - `activity`: `"Sakit"` untuk sakit, atau alasan lengkap berawalan `"Izin: <Keterangan>"` (misal: `"Izin: Mengikuti Lomba KMIPN"`).
+  - `repositories: []`
+  - `evidence_refs: []`
+- DILARANG mengabaikan status ketidakhadiran ini atau menggantinya dengan inferensi tugas magang.
+
+---
+
+## 3. Aturan untuk Hari dengan Commit Langsung (`evidence_level: "direct"`)
 - Rangkum inti pesan commit dan berkas yang disentuh menjadi 1 kalimat padat yang mengalir.
 - Sebutkan nama modul/repositori secara eksplisit.
 - Cantumkan `evidence_refs: ["<repo>:<short_sha>"]`.
@@ -28,14 +42,14 @@ Menganalisis linimasa harian pada satu tanggal tertentu dan menyusun satu objek 
 
 ---
 
-## 3. Aturan untuk Hari dengan Catatan Manual (`evidence_level: "manual"`)
+## 4. Aturan untuk Hari dengan Catatan Manual (`evidence_level: "manual"`)
 - Jika tanggal memiliki `manual_notes`, jadikan catatan tersebut sebagai dasar kegiatan.
 - Rumuskan menjadi kalimat formal (misal: *"Mengikuti diskusi mingguan dan sinkronisasi kebutuhan modul bersama tim pembimbing lapangan."*).
 - `status: "OK"`.
 
 ---
 
-## 4. Aturan untuk Hari Kosong (Inferensi Cerdas ala `git_trace`)
+## 5. Aturan untuk Hari Kosong (Inferensi Cerdas ala `git_trace`)
 Jika tanggal tidak memiliki commit langsung dan tidak ada catatan manual:
 1. **Periksa `subsequent_commits` (Commit Terdekat Berikutnya)**:
    - Rumuskan kegiatan sebagai persiapan, riset teknis, analisis kebutuhan, perancangan antarmuka/skema data, atau penyiapan lingkungan kerja menuju fitur commit tersebut.

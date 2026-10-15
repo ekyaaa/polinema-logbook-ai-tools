@@ -17,7 +17,7 @@ git:
   include_diff_stat: false
 
 ai:
-  allow_inferred_activity: false
+  allow_inferred_activity: true
   max_activity_words: 35
 
 latex:

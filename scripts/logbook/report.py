@@ -22,6 +22,7 @@ def build_generation_report(
     direct_days = sum(1 for e in logbook.entries if e.evidence_level == EvidenceLevel.DIRECT)
     manual_days = sum(1 for e in logbook.entries if e.evidence_level == EvidenceLevel.MANUAL)
     inferred_days = sum(1 for e in logbook.entries if e.evidence_level == EvidenceLevel.INFERRED)
+    absent_days = sum(1 for e in logbook.entries if e.evidence_level == EvidenceLevel.ABSENT)
     needs_review = sum(1 for e in logbook.entries if e.status == ActivityStatus.NEEDS_REVIEW)
 
     return GenerationReport(
@@ -33,6 +34,7 @@ def build_generation_report(
         direct_evidence_days=direct_days,
         manual_days=manual_days,
         inferred_days=inferred_days,
+        absent_days=absent_days,
         needs_review_days=needs_review,
         pdf_path=pdf_path,
         compiled_at=datetime.datetime.now().isoformat() if pdf_path else None,
@@ -67,6 +69,7 @@ def render_report_markdown(report: GenerationReport, timeline: MonthTimeline) ->
 | Hari dengan Direct Evidence (Git) | {report.direct_evidence_days} |
 | Hari dengan Manual Evidence (Catatan) | {report.manual_days} |
 | Hari dengan Inferred Evidence | {report.inferred_days} |
+| Hari Tidak Masuk / Izin / Sakit | {report.absent_days} |
 | Hari yang Perlu Direview (`NEEDS_REVIEW`) | {report.needs_review_days} |
 
 ---

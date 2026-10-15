@@ -52,7 +52,18 @@ def validate_logbook_entries(
         day_tl = timeline_days[date]
 
         # Check status and evidence level
-        if day_tl.evidence_level == EvidenceLevel.NONE:
+        if day_tl.evidence_level == EvidenceLevel.ABSENT:
+            if entry.evidence_level != EvidenceLevel.ABSENT:
+                errors.append(
+                    f"Date {date} is recorded as absent in timeline, but entry has evidence_level '{entry.evidence_level}'."
+                )
+            if not entry.activity:
+                errors.append(f"Date {date} is absent, but activity/reason is empty.")
+        elif entry.evidence_level == EvidenceLevel.ABSENT:
+            errors.append(
+                f"Date {date} claims absent, but timeline does not record an absence for this date."
+            )
+        elif day_tl.evidence_level == EvidenceLevel.NONE:
             if entry.evidence_level == EvidenceLevel.DIRECT:
                 errors.append(
                     f"Date {date} has NO evidence but claims direct evidence."

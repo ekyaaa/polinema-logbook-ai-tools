@@ -10,7 +10,7 @@ from typing import List, Optional
 
 from .author import AuthorMatcher
 from .compiler import compile_latex
-from .config import AppConfig, load_app_config
+from .config import AppConfig, get_absences_map_by_date, load_absences_config, load_app_config
 from .discovery import discover_repositories
 from .git_reader import collect_git_evidence, parse_month_string
 from .renderer import render_latex_files
@@ -111,12 +111,17 @@ def cmd_timeline(args: argparse.Namespace, config: AppConfig) -> int:
     manual_dir = config.project_dir / "manual"
     manual_notes = load_manual_evidence(manual_dir, month_key)
 
+    # Load absence records
+    absences_raw = load_absences_config(config.project_dir / "config")
+    absences_map = get_absences_map_by_date(absences_raw)
+
     year, month = parse_month_string(month_key)
     timeline = build_month_timeline(
         year=year,
         month=month,
         commits=commits,
         manual_notes=manual_notes,
+        absences=absences_map,
         working_days=config.logbook.working_days,
         only_working_days=True,
     )
@@ -150,12 +155,14 @@ def cmd_prepare(args: argparse.Namespace, config: AppConfig) -> int:
 
     direct_count = sum(1 for d in timeline.days if d.evidence_level == EvidenceLevel.DIRECT)
     manual_count = sum(1 for d in timeline.days if d.evidence_level == EvidenceLevel.MANUAL)
+    absent_count = sum(1 for d in timeline.days if d.evidence_level == EvidenceLevel.ABSENT)
     none_count = sum(1 for d in timeline.days if d.evidence_level == EvidenceLevel.NONE)
 
     print(f"\n=== PREPARE SUMMARY ({month_key}) ===")
     print(f"Total Workdays: {len(timeline.days)}")
     print(f"Direct Git Evidence: {direct_count} days")
     print(f"Manual Evidence: {manual_count} days")
+    print(f"Absent / Leave Days: {absent_count} days")
     print(f"Needs Review / Empty: {none_count} days")
     print(f"\nReady for AI Synthesis. Generate 'logbook.draft.json' using timeline.json.")
     return 0
@@ -192,12 +199,20 @@ def cmd_render(args: argparse.Namespace, config: AppConfig) -> int:
     else:
         logbook = MonthlyLogbook(**data)
 
+    period_label = getattr(args, "period", None)
+    if not period_label and len(logbook.entries) > 0 and len(logbook.entries) < 10:
+        first_dt = logbook.entries[0].date
+        last_dt = logbook.entries[-1].date
+        if first_dt == "2026-07-01" and last_dt == "2026-07-03":
+            period_label = "01 Juli 2026 -- 05 Juli 2026"
+
     current_dir = config.project_dir / "generated" / "current"
     render_latex_files(
         output_dir=month_dir,
         config=config,
         logbook=logbook,
         current_dir=current_dir,
+        period_label=period_label,
     )
 
     print(f"[+] Rendered LaTeX files:")
@@ -343,6 +358,7 @@ def main():
     # render
     p_rnd = subparsers.add_parser("render", help="Render LaTeX metadata and activities files")
     p_rnd.add_argument("--month", type=str, required=True, help="Target month (YYYY-MM)")
+    p_rnd.add_argument("--period", type=str, help="Custom period label (e.g. '01 Juli 2026 -- 05 Juli 2026')")
 
     # compile
     p_cmp = subparsers.add_parser("compile", help="Compile LaTeX into dist/logbook-YYYY-MM.pdf")
@@ -352,6 +368,7 @@ def main():
     # finalize
     p_fin = subparsers.add_parser("finalize", help="Validate, render, compile, and report")
     p_fin.add_argument("--month", type=str, required=True, help="Target month (YYYY-MM)")
+    p_fin.add_argument("--period", type=str, help="Custom period label (e.g. '01 Juli 2026 -- 05 Juli 2026')")
     p_fin.add_argument("--engine", type=str, choices=["xelatex", "pdflatex"], help="LaTeX engine")
 
     args = parser.parse_args()

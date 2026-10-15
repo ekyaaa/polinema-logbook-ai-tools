@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import datetime
 import json
 import os
 import subprocess
@@ -12,8 +13,17 @@ import yaml
 
 
 @dataclass
+class AbsenceItem:
+    start_date: str
+    end_date: str
+    category: str
+    reason: str
+
+
+@dataclass
 class StudentConfig:
     name: str = ""
+    signature_name: str = ""
     nim: str = ""
     program: str = ""
     institution: str = ""
@@ -171,6 +181,7 @@ def load_app_config(project_dir: Optional[Path] = None) -> AppConfig:
 
         student = StudentConfig(
             name=str(student_data.get("name", "")),
+            signature_name=str(student_data.get("signature_name", "") or student_data.get("name", "")),
             nim=str(student_data.get("nim", "")),
             program=str(student_data.get("program", "D-IV Teknik Informatika")),
             institution=str(student_data.get("institution", "Politeknik Negeri Malang")),
@@ -226,6 +237,7 @@ def load_app_config(project_dir: Optional[Path] = None) -> AppConfig:
 
     student = StudentConfig(
         name=str(student_data.get("name", "")),
+        signature_name=str(student_data.get("signature_name", "") or student_data.get("name", "")),
         nim=str(student_data.get("nim", "")),
         program=str(student_data.get("program", "")),
         institution=str(student_data.get("institution", "")),
@@ -277,3 +289,46 @@ def load_app_config(project_dir: Optional[Path] = None) -> AppConfig:
         internship=internship,
         logbook=logbook,
     )
+
+
+def load_absences_config(config_dir: Path) -> List[AbsenceItem]:
+    """Loads absence records from config/absences.yaml if present."""
+    absences_file = config_dir / "absences.yaml"
+    if not absences_file.is_file():
+        return []
+
+    data = load_yaml_file(absences_file)
+    if not isinstance(data, dict):
+        return []
+
+    items_raw = data.get("absences", [])
+    if not isinstance(items_raw, list):
+        return []
+
+    results: List[AbsenceItem] = []
+    for item in items_raw:
+        if not isinstance(item, dict):
+            continue
+        start = str(item.get("start_date", "")).strip()
+        end = str(item.get("end_date") or start).strip()
+        cat = str(item.get("category", "Izin")).strip()
+        reason = str(item.get("reason", "")).strip()
+        if start:
+            results.append(AbsenceItem(start_date=start, end_date=end, category=cat, reason=reason))
+    return results
+
+
+def get_absences_map_by_date(absences: List[AbsenceItem]) -> Dict[str, AbsenceItem]:
+    """Expands date ranges into a mapping of date_str (YYYY-MM-DD) -> AbsenceItem."""
+    mapping: Dict[str, AbsenceItem] = {}
+    for item in absences:
+        try:
+            start_dt = datetime.date.fromisoformat(item.start_date)
+            end_dt = datetime.date.fromisoformat(item.end_date)
+            cur = start_dt
+            while cur <= end_dt:
+                mapping[cur.isoformat()] = item
+                cur += datetime.timedelta(days=1)
+        except ValueError:
+            mapping[item.start_date] = item
+    return mapping

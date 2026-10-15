@@ -71,20 +71,26 @@ Script ini akan:
 ---
 
 ### Langkah 4: Sintesis Kegiatan Harian AI (Aturan GitTrace)
-Baca berkas `generated/YYYY-MM/timeline.json` dan buat entri kegiatan untuk seluruh hari kerja:
-1. **Hari dengan Commit Langsung (`evidence_level: "direct"`)**:
+1. **Hari Tidak Masuk (Sakit / Izin / Lomba) (`evidence_level: "absent"`)**:
+   - Periksa `config/absences.yaml` (dan `.agents/rules/absences.md`). Jika tanggal tersebut terdaftar sebagai hari tidak masuk, prioritaskan status ini di atas commit Git atau inferensi kerja.
+   - Set `status: "OK"`, `evidence_level: "absent"`, `confidence: 1.0`, `evidence_refs: []`.
+   - Kolom `check_in` dan `check_out`: diisi `"Sakit"` untuk sakit, atau `"Izin"` untuk jenis izin lainnya (lomba, bimbingan, dispensasi).
+   - Kolom `activity`: diisi `"Sakit"` untuk sakit, atau alasan lengkap berawalan `"Izin: <Keterangan>"` untuk izin lainnya.
+   - Pada hasil render PDF LaTeX, kolom Jam Masuk, Jam Pulang, dan Kegiatan akan otomatis dicetak dengan font warna merah (`\textcolor{red}{...}`).
+   - Tanggal akhir pekan (Sabtu & Minggu) pada daftar ketidakhadiran tidak dimasukkan ke dalam tabel logbook.
+2. **Hari dengan Commit Langsung (`evidence_level: "direct"`)**:
    - Rangkum commit dan berkas yang disentuh menjadi 1 kalimat padat dan mengalir dalam Bahasa Indonesia formal (maksimal 35 kata).
    - Sebutkan nama repositori/fitur teknis secara eksplisit.
    - Cantumkan `evidence_refs: ["<repo>:<short_sha>"]`.
-2. **Hari dengan Catatan Manual (`evidence_level: "manual"`)**:
+3. **Hari dengan Catatan Manual (`evidence_level: "manual"`)**:
    - Gunakan catatan di `manual_notes` menjadi narasi kegiatan formal.
-3. **Hari Kosong Tanpa Commit (`evidence_level: "inferred"`) — Logika `git_trace`**:
+4. **Hari Kosong Tanpa Commit (`evidence_level: "inferred"`) — Logika `git_trace`**:
    - Ambil data `subsequent_commits` (commit hari kerja terdekat berikutnya).
    - Rumuskan kegiatan logis menuju fitur tersebut (analisis kebutuhan, perancangan antarmuka, pembuatan skema data, riset pustaka, atau koordinasi teknis).
    - Jika tidak ada `subsequent_commits`, gunakan `prior_commits` (pengujian fungsional, refaktorisasi, peninjauan kode, atau dokumentasi fitur sebelumnya).
    - Set `status: "OK"`, `evidence_level: "inferred"`, `evidence_refs: []`.
    - **Variasikan kata kerja**: Dilarang mengulang kalimat yang sama persis antardua hari kosong.
-4. Simpan seluruh entri kegiatan ke `generated/YYYY-MM/logbook.final.json` (dan `logbook.draft.json`).
+5. Simpan seluruh entri kegiatan ke `generated/YYYY-MM/logbook.final.json` (dan `logbook.draft.json`).
 
 ---
 
@@ -104,3 +110,25 @@ Script ini akan:
 ### Langkah 6: Tampilkan Hasil ke Pengguna
 1. Tampilkan ringkasan metrik (total hari kerja, total commit, hari langsung, hari inferensi).
 2. Berikan tautan langsung berkas PDF yang siap diunduh/dicetak di `dist/logbook-YYYY-MM.pdf`.
+
+---
+
+## Alur Kerja Logbook Mingguan (Weekly Mode)
+
+Jika pengguna meminta pembuatan logbook per minggu atau secara borongan (batch) seluruh minggu magang:
+1. Pastikan profil di `config.json` dan daftar izin di `config/absences.yaml` telah disiapkan.
+2. Jalankan perintah batch:
+   ```bash
+   python3 -m scripts.generate_weekly
+   ```
+3. Script akan menyusun 15 minggu masa magang (Juli-1 hingga Oktober-1) dengan standar layout tepat 1 halaman (*strict single-page*), menyematkan tanda tangan resmi dari `assets/`, serta menandai ketidakhadiran dengan teks merah.
+4. Seluruh berkas PDF hasil kompilasi disimpan di `dist/final/logbook-<NamaMinggu>.pdf`.
+5. Tampilkan tabel ringkasan 15 file PDF dengan tautan langsung ke pengguna.
+
+---
+
+## Referensi Aturan Tambahan (.agents/rules/)
+- [Aturan Ketidakhadiran Magang](file:///.agents/rules/absences.md) (`.agents/rules/absences.md`)
+- [Standar Logbook Mingguan](file:///.agents/rules/weekly-logbook.md) (`.agents/rules/weekly-logbook.md`)
+- [Aturan Konfigurasi & Privasi](file:///.agents/rules/config-and-privacy.md) (`.agents/rules/config-and-privacy.md`)
+- [Arsitektur LaTeX](file:///.agents/rules/latex-architecture.md) (`.agents/rules/latex-architecture.md`)

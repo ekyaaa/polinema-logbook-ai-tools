@@ -1,0 +1,11 @@
+company: "Nama Perusahaan Mitra"
+division: "Software Engineering"
+
+project_root: "/home/user/Project/Magang"
+
+git_authors:
+  names:
+    - "username_git"
+    - "Nama Lengkap Mahasiswa"
+  emails:
+    - "email_mahasiswa@example.com"

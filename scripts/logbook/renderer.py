@@ -11,7 +11,7 @@ from typing import List, Optional
 
 from .config import AppConfig
 from .latex_escape import escape_latex
-from .schemas import ActivityStatus, DailyActivityEntry, MonthlyLogbook
+from .schemas import ActivityStatus, DailyActivityEntry, EvidenceLevel, MonthlyLogbook
 from .timeline import DAY_NAMES_ID
 
 MONTH_NAMES_ID = {
@@ -72,13 +72,15 @@ def get_period_label(year: int, month: int) -> str:
     return f"01 {month_name} {year} -- {last_day:02d} {month_name} {year}"
 
 
-def render_metadata_tex(config: AppConfig, year: int, month: int) -> str:
+def render_metadata_tex(config: AppConfig, year: int, month: int, period_label: Optional[str] = None) -> str:
     """Generates LaTeX metadata variable declarations."""
-    period_str = get_period_label(year, month)
+    period_str = period_label or get_period_label(year, month)
+    sig_name = getattr(config.student, "signature_name", "") or config.student.name or "Ekya Muhammad Hasfi F."
 
     lines = [
         r"% Auto-generated logbook metadata",
         rf"\newcommand{{\StudentName}}{{{escape_latex(config.student.name)}}}",
+        rf"\newcommand{{\StudentSignatureName}}{{{escape_latex(sig_name)}}}",
         rf"\newcommand{{\StudentNIM}}{{{escape_latex(config.student.nim)}}}",
         rf"\newcommand{{\StudentProgram}}{{{escape_latex(config.student.program)}}}",
         rf"\newcommand{{\CompanyFullName}}{{{escape_latex(config.internship.company)}}}",
@@ -105,6 +107,17 @@ def render_activities_tex(
             check_in = "-"
             check_out = "-"
             activity_text = r"\textit{[Perlu Review Kegiatan / Tidak Ada Catatan]}"
+        elif entry.evidence_level == EvidenceLevel.ABSENT or (
+            entry.check_in and entry.check_in.strip().lower() in ["sakit", "izin"]
+        ):
+            raw_check_in = entry.check_in or "Izin"
+            raw_check_out = entry.check_out or "Izin"
+            escaped_check_in = escape_latex(raw_check_in.replace(":", "."))
+            escaped_check_out = escape_latex(raw_check_out.replace(":", "."))
+            escaped_activity = escape_latex(entry.activity)
+            check_in = rf"\textcolor{{red}}{{{escaped_check_in}}}"
+            check_out = rf"\textcolor{{red}}{{{escaped_check_out}}}"
+            activity_text = rf"\textcolor{{red}}{{{escaped_activity}}}"
         else:
             raw_check_in = entry.check_in or default_check_in
             raw_check_out = entry.check_out or default_check_out
@@ -132,6 +145,7 @@ def render_latex_files(
     config: AppConfig,
     logbook: MonthlyLogbook,
     current_dir: Optional[Path] = None,
+    period_label: Optional[str] = None,
 ) -> None:
     """Writes metadata.tex and activities.tex to target month dir and syncs to current dir."""
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -139,7 +153,7 @@ def render_latex_files(
     parts = logbook.month.split("-")
     year, month = int(parts[0]), int(parts[1])
 
-    metadata_content = render_metadata_tex(config, year, month)
+    metadata_content = render_metadata_tex(config, year, month, period_label=period_label)
     activities_content = render_activities_tex(
         entries=logbook.entries,
         default_check_in=config.logbook.check_in,

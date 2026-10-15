@@ -11,6 +11,7 @@ class EvidenceLevel(str, Enum):
     DIRECT = "direct"
     MANUAL = "manual"
     INFERRED = "inferred"
+    ABSENT = "absent"
     NONE = "none"
 
 
@@ -40,6 +41,9 @@ class DayTimeline(BaseModel):
     repositories: List[str] = Field(default_factory=list)
     commits: List[CommitEvidence] = Field(default_factory=list)
     manual_notes: List[str] = Field(default_factory=list)
+    is_absent: bool = False
+    absence_category: Optional[str] = None
+    absence_reason: Optional[str] = None
     subsequent_commits: List[CommitEvidence] = Field(default_factory=list)
     subsequent_date: Optional[str] = None
     prior_commits: List[CommitEvidence] = Field(default_factory=list)
@@ -81,6 +85,7 @@ class GenerationReport(BaseModel):
     direct_evidence_days: int = 0
     manual_days: int = 0
     inferred_days: int = 0
+    absent_days: int = 0
     needs_review_days: int = 0
     pdf_path: Optional[str] = None
     compiled_at: Optional[str] = None
